@@ -1,6 +1,6 @@
 [submodule "vault"]
 	path = vault
-	url = https://github.com/robotfreak/ki-os.git
+	url = https://github.com/robotfreak/vault.git
 [submodule "inventory"]
 	path = inventory
 	url = git@github.com:robotfreak/inventory.git
@@ -10,3 +10,6 @@
 [submodule "makerspace-logger"]
 	path = makerspace-logger
 	url = git@github.com:robotfreak/makerspace-logger.git
+[submodule "openscad-webui"]
+	path = openscad-webui
+	url = git@github.com:robotfreak/openscad-webui.git
