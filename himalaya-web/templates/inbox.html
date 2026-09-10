@@ -13,7 +13,7 @@
 {% if emails %}
 <div class="list-group email-list">
     {% for email in emails %}
-    <a href="{{ url_for('read_email', email_id=email.id) }}" 
+    <a href="{{ url_for('read_email', email_id=email.id, folder=folder) }}" 
        class="list-group-item list-group-item-action email-item {% if 'N' in email.flags %}unread{% endif %}">
         <div class="d-flex justify-content-between align-items-center">
             <div class="flex-grow-1">
