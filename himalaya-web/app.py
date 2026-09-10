@@ -48,11 +48,11 @@ def parse_email_list(output):
             # v2.x Reihenfolge: ID, FLAGS, SUBJECT, FROM, DATE, SIZE
             if len(parts) >= 5:
                 emails.append({
-                    "id": parts[0].strip(),      # ID
-                    "flags": parts[1].strip(),   # FLAGS
-                    "subject": parts[2].strip(), # SUBJECT (neu!)
-                    "from": parts[3].strip(),    # FROM (neu!)
-                    "date": parts[4].strip()     # DATE
+                    "id": parts[0].strip(),           # ID
+                    "flags": parts[1].strip(),        # FLAGS
+                    "subject": parts[2].strip(),      # SUBJECT
+                    "sender": parts[3].strip(),       # FROM → sender (besser für Jinja2)
+                    "date": parts[4].strip()          # DATE
                 })
     
     return emails

@@ -17,7 +17,7 @@
        class="list-group-item list-group-item-action email-item {% if 'N' in email.flags %}unread{% endif %}">
         <div class="d-flex justify-content-between align-items-center">
             <div class="flex-grow-1">
-                <div class="fw-bold">{{ email.from }}</div>
+                <div class="fw-bold">{{ email.sender }}</div>
                 <div class="email-subject">{{ email.subject }}</div>
             </div>
             <div class="text-muted small">
