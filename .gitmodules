@@ -13,3 +13,6 @@
 [submodule "openscad-webui"]
 	path = openscad-webui
 	url = git@github.com:robotfreak/openscad-webui.git
+[submodule "vault-renderer"]
+	path = vault-renderer
+	url = git@github.com:robotfreak/vault-renderer.git
