@@ -18,6 +18,8 @@ HIMALAYA_CONFIG = os.path.expanduser("~/.config/himalaya/config.toml")
 def run_himalaya(args):
     """Führt Himalaya CLI Befehl aus und gibt Output zurück"""
     try:
+        # v2.x Syntax: himalaya [OPTIONS] <COMMAND>
+        # Beispiel: himalaya envelope list --limit 50
         cmd = [HIMALAYA_CMD] + args
         result = subprocess.run(cmd, capture_output=True, text=True, timeout=30)
         if result.returncode != 0:
@@ -27,13 +29,21 @@ def run_himalaya(args):
         return {"success": False, "error": str(e)}
 
 def parse_email_list(output):
-    """Parsed Himalaya email list Output"""
+    """Parsed Himalaya v2.x envelope list Output (Tabelle)"""
     emails = []
     lines = output.strip().split("\n")
+    
+    # v2.x Output ist eine Tabelle:
+    # ┌────┬──────┬─────────┬─────────┬────────────┐
+    # │ ID │ FLAGS│ FROM    │ SUBJECT │ DATE       │
+    # ├────┼──────┼─────────┼─────────┼────────────┤
+    # │1234│ N    │ peter@..│ Betreff │ 2025-01-15 │
+    
     for line in lines:
-        if line.strip():
-            # Format: ID | FLAGS | FROM | SUBJECT | DATE
-            parts = line.split(" | ")
+        # Nur Zeilen mit │ sind Daten-Zeilen
+        if '│' in line and '──' not in line and 'ID' not in line:
+            # Extrahiere Spalten zwischen │
+            parts = [p.strip() for p in line.split('│') if p.strip()]
             if len(parts) >= 5:
                 emails.append({
                     "id": parts[0].strip(),
@@ -42,6 +52,7 @@ def parse_email_list(output):
                     "subject": parts[3].strip(),
                     "date": parts[4].strip()
                 })
+    
     return emails
 
 def parse_email_content(output):
@@ -74,7 +85,8 @@ def index():
 @app.route("/inbox")
 def inbox():
     """Zeigt Inbox Emails"""
-    result = run_himalaya(["list", "--limit", "50"])
+    # v2.x: himalaya envelope list --page-size 50
+    result = run_himalaya(["envelope", "list", "--page-size", "50"])
     if result["success"]:
         emails = parse_email_list(result["output"])
         return render_template("inbox.html", emails=emails, folder="INBOX")
@@ -84,7 +96,8 @@ def inbox():
 @app.route("/folder/<folder_name>")
 def folder(folder_name):
     """Zeigt Emails aus beliebigem Ordner"""
-    result = run_himalaya(["list", "--folder", folder_name, "--limit", "50"])
+    # v2.x: himalaya envelope list --mailbox <name> --page-size 50
+    result = run_himalaya(["envelope", "list", "--mailbox", folder_name, "--page-size", "50"])
     if result["success"]:
         emails = parse_email_list(result["output"])
         return render_template("inbox.html", emails=emails, folder=folder_name)
@@ -94,7 +107,8 @@ def folder(folder_name):
 @app.route("/email/<email_id>")
 def read_email(email_id):
     """Zeigt Email Inhalt"""
-    result = run_himalaya(["read", email_id])
+    # v2.x: himalaya message show <id>
+    result = run_himalaya(["message", "show", email_id])
     if result["success"]:
         email_data = parse_email_content(result["output"])
         return render_template("email.html", email=email_data, email_id=email_id)
@@ -113,15 +127,17 @@ def send_email():
     subject = request.form.get("subject", "")
     body = request.form.get("body", "")
     
-    # Temporäre Datei für Email Body
-    import tempfile
-    with tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=".eml") as f:
-        f.write(body)
-        temp_file = f.name
-    
+    # v2.x: himalaya message send --to <email> --subject <subject>
+    # Body als stdin
     try:
-        # Himalaya send command
-        cmd = f'echo "{subject}" | {HIMALAYA_CMD} send {shlex.quote(to)} -a {temp_file}'
+        import tempfile
+        # Temporäre Datei für den Body
+        with tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=".txt") as f:
+            f.write(body)
+            temp_file = f.name
+        
+        # himalaya message send < to_file
+        cmd = f'{HIMALAYA_CMD} message send --to {shlex.quote(to)} --subject {shlex.quote(subject)} < {shlex.quote(temp_file)}'
         result = subprocess.run(cmd, shell=True, capture_output=True, text=True, timeout=30)
         os.unlink(temp_file)
         
@@ -129,12 +145,14 @@ def send_email():
             return render_template("error.html", error=result.stderr)
         return redirect(url_for("inbox"))
     except Exception as e:
-        os.unlink(temp_file)
+        if 'temp_file' in locals():
+            os.unlink(temp_file)
         return render_template("error.html", error=str(e))
 
 @app.route("/folders")
 def folders():
     """Zeigt alle Ordner"""
+    # v2.x: himalaya mailbox list
     result = run_himalaya(["mailbox", "list"])
     if result["success"]:
         folders_list = [f.strip() for f in result["output"].strip().split("\n") if f.strip()]
