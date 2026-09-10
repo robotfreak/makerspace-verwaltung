@@ -115,8 +115,8 @@ def folder(folder_name):
 @app.route("/email/<email_id>")
 def read_email(email_id):
     """Zeigt Email Inhalt"""
-    # v2.x: himalaya message show <id>
-    result = run_himalaya(["message", "show", email_id])
+    # v2.x: himalaya message read <id>
+    result = run_himalaya(["message", "read", email_id])
     if result["success"]:
         email_data = parse_email_content(result["output"])
         return render_template("email.html", email=email_data, email_id=email_id)
