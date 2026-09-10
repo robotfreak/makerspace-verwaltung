@@ -101,7 +101,7 @@ def inbox():
     else:
         return render_template("error.html", error=result.get("error", "Unbekannter Fehler"))
 
-@app.route("/folder/<folder_name>")
+@app.route("/folder/<path:folder_name>")
 def folder(folder_name):
     """Zeigt Emails aus beliebigem Ordner"""
     # v2.x: himalaya envelope list --mailbox <name> --page-size 50
