@@ -34,23 +34,25 @@ def parse_email_list(output):
     lines = output.strip().split("\n")
     
     # v2.x Output ist eine Tabelle:
-    # ┌────┬──────┬─────────┬─────────┬────────────┐
-    # │ ID │ FLAGS│ FROM    │ SUBJECT │ DATE       │
-    # ├────┼──────┼─────────┼─────────┼────────────┤
-    # │1234│ N    │ peter@..│ Betreff │ 2025-01-15 │
+    # ┌─────┬───────┬─────────────┬──────────┬──────────────┬────────┐
+    # │ ID  │ FLAGS │ SUBJECT     │ FROM     │ DATE         │ SIZE   │
+    # ├─────┼───────┼─────────────┼──────────┼──────────────┼────────┤
+    # │ 608 │       │ Rückschau   │ Lysann   │ 2026-09-03   │ 613KB  │
     
     for line in lines:
-        # Nur Zeilen mit │ sind Daten-Zeilen
-        if '│' in line and '──' not in line and 'ID' not in line:
+        # Nur Zeilen mit │ sind Daten-Zeilen (nicht Header oder Trennlinien)
+        if '│' in line and '──' not in line and 'ID' not in line and '╞' not in line and '╔' not in line:
             # Extrahiere Spalten zwischen │
-            parts = [p.strip() for p in line.split('│') if p.strip()]
+            parts = [p.strip() for p in line.split('│') if p.strip() and p.strip() != '']
+            
+            # v2.x Reihenfolge: ID, FLAGS, SUBJECT, FROM, DATE, SIZE
             if len(parts) >= 5:
                 emails.append({
-                    "id": parts[0].strip(),
-                    "flags": parts[1].strip(),
-                    "from": parts[2].strip(),
-                    "subject": parts[3].strip(),
-                    "date": parts[4].strip()
+                    "id": parts[0].strip(),      # ID
+                    "flags": parts[1].strip(),   # FLAGS
+                    "subject": parts[2].strip(), # SUBJECT (neu!)
+                    "from": parts[3].strip(),    # FROM (neu!)
+                    "date": parts[4].strip()     # DATE
                 })
     
     return emails
@@ -85,8 +87,8 @@ def index():
 @app.route("/inbox")
 def inbox():
     """Zeigt Inbox Emails"""
-    # v2.x: himalaya envelope list --page-size 50
-    result = run_himalaya(["envelope", "list", "--page-size", "50"])
+    # v2.x: himalaya envelope list --mailbox INBOX --page-size 50
+    result = run_himalaya(["envelope", "list", "--mailbox", "INBOX", "--page-size", "50"])
     if result["success"]:
         emails = parse_email_list(result["output"])
         return render_template("inbox.html", emails=emails, folder="INBOX")
