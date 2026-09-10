@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block title %}Fehler - Himalaya Webmail{% endblock %}
+
+{% block content %}
+<div class="alert alert-danger" role="alert">
+    <h4 class="alert-heading"><i class="bi bi-exclamation-triangle"></i> Fehler</h4>
+    <p>{{ error }}</p>
+    <hr>
+    <p class="mb-0">
+        <a href="{{ url_for('inbox') }}" class="btn btn-outline-danger">
+            <i class="bi bi-house"></i> Zur Startseite
+        </a>
+    </p>
+</div>
+{% endblock %}

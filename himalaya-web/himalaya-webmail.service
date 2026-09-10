@@ -1,0 +1,22 @@
+[Unit]
+Description=Himalaya Webmail - Web-Interface für Himalaya CLI
+After=network.target
+
+[Service]
+Type=exec
+User=pi
+Group=pi
+WorkingDirectory=/home/pi/makerspace-verwaltung/himalaya-web
+Environment="PATH=/home/pi/makerspace-verwaltung/himalaya-web/venv/bin:/home/pi/.local/bin:/usr/local/bin:/usr/bin:/bin"
+ExecStart=/home/pi/makerspace-verwaltung/himalaya-web/venv/bin/python app.py
+Restart=on-failure
+RestartSec=5
+
+# Security Hardening
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=read-only
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

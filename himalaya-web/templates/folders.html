@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block title %}Ordner - Himalaya Webmail{% endblock %}
+
+{% block content %}
+<h2 class="mb-4"><i class="bi bi-folder"></i> Alle Ordner</h2>
+
+<div class="list-group">
+    {% for folder in folders %}
+    <a href="{{ url_for('folder', folder_name=folder) }}" 
+       class="list-group-item list-group-item-action">
+        <i class="bi bi-folder-fill"></i> {{ folder }}
+    </a>
+    {% endfor %}
+</div>
+
+<div class="mt-3">
+    <a href="{{ url_for('inbox') }}" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left"></i> Zurück zur Inbox
+    </a>
+</div>
+{% endblock %}

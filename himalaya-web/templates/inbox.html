@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block title %}Inbox - Himalaya Webmail{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="bi bi-inbox"></i> Inbox</h2>
+    <button class="btn btn-outline-secondary" onclick="location.reload()">
+        <i class="bi bi-arrow-clockwise"></i> Aktualisieren
+    </button>
+</div>
+
+{% if emails %}
+<div class="list-group email-list">
+    {% for email in emails %}
+    <a href="{{ url_for('read_email', email_id=email.id) }}" 
+       class="list-group-item list-group-item-action email-item {% if 'N' in email.flags %}unread{% endif %}">
+        <div class="d-flex justify-content-between align-items-center">
+            <div class="flex-grow-1">
+                <div class="fw-bold">{{ email.from }}</div>
+                <div class="email-subject">{{ email.subject }}</div>
+            </div>
+            <div class="text-muted small">
+                {{ email.date }}
+            </div>
+        </div>
+        <div class="mt-1">
+            {% if '⭐' in email.flags %}<i class="bi bi-star-fill text-warning"></i>{% endif %}
+            {% if '📎' in email.flags %}<i class="bi bi-paperclip"></i>{% endif %}
+        </div>
+    </a>
+    {% endfor %}
+</div>
+<div class="mt-3 text-muted">
+    <small>{{ emails|length }} E-Mails angezeigt</small>
+</div>
+{% else %}
+<div class="alert alert-info">
+    <i class="bi bi-info-circle"></i> Keine E-Mails im Posteingang
+</div>
+{% endif %}
+{% endblock %}

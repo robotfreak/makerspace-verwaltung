@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %}{{ email.headers.get('Subject', 'E-Mail') }} - Himalaya Webmail{% endblock %}
+
+{% block content %}
+<div class="email-header">
+    <div class="d-flex justify-content-between align-items-start mb-3">
+        <h2>{{ email.headers.get('Subject', 'Kein Betreff') }}</h2>
+        <div>
+            <a href="{{ url_for('inbox') }}" class="btn btn-outline-secondary btn-sm">
+                <i class="bi bi-arrow-left"></i> Zurück
+            </a>
+            <button class="btn btn-outline-danger btn-sm" onclick="window.print()">
+                <i class="bi bi-printer"></i> Drucken
+            </button>
+        </div>
+    </div>
+    
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <strong><i class="bi bi-person"></i> Von:</strong><br>
+            {{ email.headers.get('From', 'Unbekannt') }}
+        </div>
+        <div class="col-md-6">
+            <strong><i class="bi bi-clock"></i> Datum:</strong><br>
+            {{ email.headers.get('Date', 'Unbekannt') }}
+        </div>
+    </div>
+    
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <strong><i class="bi bi-people"></i> An:</strong><br>
+            {{ email.headers.get('To', 'Unbekannt') }}
+        </div>
+        {% if email.headers.get('Cc') %}
+        <div class="col-md-6">
+            <strong><i class="bi bi-cc"></i> CC:</strong><br>
+            {{ email.headers.get('Cc') }}
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<div class="email-body">
+{{ email.body }}
+</div>
+
+<div class="mt-4">
+    <a href="{{ url_for('compose') }}?to={{ email.headers.get('From', '')|replace(' ', '') }}" 
+       class="btn btn-primary">
+        <i class="bi bi-reply"></i> Antworten
+    </a>
+    <a href="{{ url_for('compose') }}" class="btn btn-outline-secondary">
+        <i class="bi bi-envelope"></i> Neue E-Mail
+    </a>
+</div>
+{% endblock %}
