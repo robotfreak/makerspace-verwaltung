@@ -33,27 +33,31 @@ def parse_email_list(output):
     emails = []
     lines = output.strip().split("\n")
     
-    # v2.x Output ist eine Tabelle:
+    # v2.x Output ist eine Tabelle mit ┆ oder │ als Separator:
     # ┌─────┬───────┬─────────────┬──────────┬──────────────┬────────┐
     # │ ID  │ FLAGS │ SUBJECT     │ FROM     │ DATE         │ SIZE   │
-    # ├─────┼───────┼─────────────┼──────────┼──────────────┼────────┤
-    # │ 608 │       │ Rückschau   │ Lysann   │ 2026-09-03   │ 613KB  │
+    # ╞═════╪═══════╪═════════════╪══════════╪══════════════╪════════╡
+    # │ 608 ┆       ┆ Rückschau   ┆ Lysann   ┆ 2026-09-03   ┆ 613KB  │
     
     for line in lines:
-        # Nur Zeilen mit │ sind Daten-Zeilen (nicht Header oder Trennlinien)
-        if '│' in line and '──' not in line and 'ID' not in line and '╞' not in line and '╔' not in line:
-            # Extrahiere Spalten zwischen │
-            parts = [p.strip() for p in line.split('│') if p.strip() and p.strip() != '']
-            
-            # v2.x Reihenfolge: ID, FLAGS, SUBJECT, FROM, DATE, SIZE
-            if len(parts) >= 5:
-                emails.append({
-                    "id": parts[0].strip(),           # ID
-                    "flags": parts[1].strip(),        # FLAGS
-                    "subject": parts[2].strip(),      # SUBJECT
-                    "sender": parts[3].strip(),       # FROM → sender (besser für Jinja2)
-                    "date": parts[4].strip()          # DATE
-                })
+        # Nur Daten-Zeilen (nicht Header, Trennlinien oder Rahmen)
+        # Daten-Zeilen enthalten ┆ oder │ aber keine ─ ═ ╞ ╔ ╚ ╗
+        if ('┆' in line or '│' in line) and '──' not in line and '══' not in line:
+            if 'ID' not in line and '╞' not in line and '╔' not in line and '╚' not in line and '╗' not in line:
+                # Extrahiere Spalten zwischen ┆ oder │
+                # Ersetze erst ┆ durch │ für einheitliches Parsing
+                normalized = line.replace('┆', '│')
+                parts = [p.strip() for p in normalized.split('│') if p.strip() and p.strip() != '']
+                
+                # v2.x Reihenfolge: ID, FLAGS, SUBJECT, FROM, DATE, SIZE
+                if len(parts) >= 5:
+                    emails.append({
+                        "id": parts[0].strip(),           # ID
+                        "flags": parts[1].strip(),        # FLAGS
+                        "subject": parts[2].strip(),      # SUBJECT
+                        "sender": parts[3].strip(),       # FROM → sender
+                        "date": parts[4].strip()          # DATE
+                    })
     
     return emails
 
