@@ -107,6 +107,21 @@
         
         <hr>
         
+        <h6 class="text-muted mb-2">Schnellauswahl</h6>
+        <a href="{{ url_for('inbox') }}" class="folder-link {% if request.endpoint == 'inbox' %}active{% endif %}">
+            <i class="bi bi-inbox-fill"></i> Meine Inbox
+        </a>
+        <a href="{{ url_for('folder', folder_name='Shared/info@berlincreators.de/INBOX') }}" 
+           class="folder-link">
+            <i class="bi bi-info-circle-fill"></i> Info Inbox
+        </a>
+        <a href="{{ url_for('folder', folder_name='Shared/vorstand@berlincreators.de/INBOX') }}" 
+           class="folder-link">
+            <i class="bi bi-people-fill"></i> Vorstand Inbox
+        </a>
+        
+        <hr>
+        
         <h6 class="text-muted mb-2">Ordner</h6>
         <a href="{{ url_for('inbox') }}" class="folder-link {% if request.endpoint == 'inbox' %}active{% endif %}">
             <i class="bi bi-inbox"></i> Inbox
