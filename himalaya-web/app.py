@@ -41,19 +41,21 @@ def parse_email_list(output):
     
     for line in lines:
         # Nur Daten-Zeilen (nicht Header, Trennlinien oder Rahmen)
-        # Daten-Zeilen enthalten ┆ oder │ aber keine ─ ═ ╞ ╔ ╚ ╗
         if ('┆' in line or '│' in line) and '──' not in line and '══' not in line:
             if 'ID' not in line and '╞' not in line and '╔' not in line and '╚' not in line and '╗' not in line:
                 # Extrahiere Spalten zwischen ┆ oder │
-                # Ersetze erst ┆ durch │ für einheitliches Parsing
+                # WICHTIG: Leere Zellen müssen erhalten bleiben!
                 normalized = line.replace('┆', '│')
-                parts = [p.strip() for p in normalized.split('│') if p.strip() and p.strip() != '']
+                # Splitte an │ aber behalte leere Strings zwischen aufeinanderfolgenden │
+                raw_parts = normalized.split('│')
+                # Entferne nur den ersten und letzten leeren Eintrag (von den äußeren │)
+                parts = [p.strip() for p in raw_parts[1:-1]]
                 
                 # v2.x Reihenfolge: ID, FLAGS, SUBJECT, FROM, DATE, SIZE
                 if len(parts) >= 5:
                     emails.append({
                         "id": parts[0].strip(),           # ID
-                        "flags": parts[1].strip(),        # FLAGS
+                        "flags": parts[1].strip(),        # FLAGS (kann leer sein)
                         "subject": parts[2].strip(),      # SUBJECT
                         "sender": parts[3].strip(),       # FROM → sender
                         "date": parts[4].strip()          # DATE
